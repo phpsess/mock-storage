@@ -17,9 +17,14 @@ class MockStorage implements StorageInterface
 {
 
     /**
-     * @var array $files The array that stores all the session data.
+     * @var array[] $files The array that stores all the session data.
      */
     private static $files = [];
+
+    /**
+     * @var string[] $lock The session identifiers that are locked.
+     */
+    public static $lockedIdentifiers = [];
 
     /**
      * Saves the encrypted session data to the storage.
@@ -52,6 +57,38 @@ class MockStorage implements StorageInterface
         }
 
         return self::$files[$sessionIdentifier]['data'];
+    }
+
+    /**
+     * Asks the drive to lock the session storage
+     *
+     * @param string $sessionIdentifier The session identifier to be locked
+     * @return bool
+     */
+    public function lock(string $sessionIdentifier): bool
+    {
+        if (in_array($sessionIdentifier, self::$lockedIdentifiers)) {
+            return false;
+        }
+
+        self::$lockedIdentifiers[] = $sessionIdentifier;
+
+        return true;
+    }
+
+    /**
+     * Asks the drive to unlock the session storage
+     *
+     * @param string $sessionIdentifier The session identifier to be unlocked
+     * @return void
+     */
+    public function unlock(string $sessionIdentifier): void
+    {
+        $index = array_search($sessionIdentifier, self::$lockedIdentifiers);
+
+        if ($index !== false) {
+            unset(self::$lockedIdentifiers[$index]);
+        }
     }
 
     /**

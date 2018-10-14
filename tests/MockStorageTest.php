@@ -9,33 +9,42 @@ use PHPSess\Storage\MockStorage;
 use PHPUnit\Framework\TestCase;
 use PHPSess\Exception\SessionNotFoundException;
 
+use Exception;
+
 final class MockStorageTest extends TestCase
 {
 
+    /**
+     * @covers \PHPSess\Storage\MockStorage::save
+     * @covers \PHPSess\Storage\MockStorage::get
+     */
     public function testSaveThenGet()
     {
-        $file_storage = new MockStorage();
+        $storage = new MockStorage();
 
         $identifier = $this->getName();
 
         $data = 'test_data';
 
-        $file_storage->save($identifier, $data);
+        $storage->save($identifier, $data);
 
-        $saved_data = $file_storage->get($identifier);
+        $saved_data = $storage->get($identifier);
 
         $this->assertEquals($data, $saved_data);
     }
 
+    /**
+     * @covers \PHPSess\Storage\MockStorage::get
+     */
     public function testGetWithDifferentInstance()
     {
-        $file_storage = new MockStorage();
+        $storage = new MockStorage();
 
         $identifier = $this->getName();
 
         $data = 'test_data';
 
-        $file_storage->save($identifier, $data);
+        $storage->save($identifier, $data);
 
         $new_file_storage = new MockStorage();
 
@@ -44,101 +53,186 @@ final class MockStorageTest extends TestCase
         $this->assertEquals($data, $saved_data);
     }
 
+    /**
+     * @covers \PHPSess\Storage\MockStorage::get
+     */
     public function testGetInexistent()
     {
-        $file_storage = new MockStorage();
+        $storage = new MockStorage();
 
         $identifier = $this->getName();
 
         $this->expectException(SessionNotFoundException::class);
 
-        $file_storage->get($identifier);
+        $storage->get($identifier);
     }
 
+    /**
+     * @covers \PHPSess\Storage\MockStorage::sessionExists
+     */
     public function testExists()
     {
-        $file_storage = new MockStorage();
+        $storage = new MockStorage();
 
         $identifier = $this->getName();
 
-        $exists = $file_storage->sessionExists($identifier);
+        $exists = $storage->sessionExists($identifier);
 
         $this->assertFalse($exists);
 
-        $file_storage->save($identifier, 'test');
+        $storage->save($identifier, 'test');
 
-        $exists = $file_storage->sessionExists($identifier);
+        $exists = $storage->sessionExists($identifier);
 
         $this->assertTrue($exists);
     }
 
+    /**
+     * @covers \PHPSess\Storage\MockStorage::destroy
+     */
     public function testDestroy()
     {
-        $file_storage = new MockStorage();
+        $storage = new MockStorage();
 
         $identifier = $this->getName();
 
-        $file_storage->save($identifier, 'test');
+        $storage->save($identifier, 'test');
 
-        $exists = $file_storage->sessionExists($identifier);
+        $exists = $storage->sessionExists($identifier);
 
         $this->assertTrue($exists);
 
-        $file_storage->destroy($identifier);
+        $storage->destroy($identifier);
 
-        $exists = $file_storage->sessionExists($identifier);
+        $exists = $storage->sessionExists($identifier);
 
         $this->assertFalse($exists);
     }
 
+    /**
+     * @covers \PHPSess\Storage\MockStorage::destroy
+     */
     public function testDestroyInexistent()
     {
-        $file_storage = new MockStorage();
+        $storage = new MockStorage();
 
         $identifier = $this->getName();
 
         $this->expectException(SessionNotFoundException::class);
 
-        $file_storage->destroy($identifier);
+        $storage->destroy($identifier);
     }
 
+    /**
+     * @covers \PHPSess\Storage\MockStorage::clearOld
+     */
     public function testClearOld()
     {
-        $file_storage = new MockStorage();
+        $storage = new MockStorage();
 
         $identifier = $this->getName();
 
-        $file_storage->save($identifier, 'test');
+        $storage->save($identifier, 'test');
 
         usleep(1000); // 1 milisecond
 
-        $exists = $file_storage->sessionExists($identifier);
+        $exists = $storage->sessionExists($identifier);
 
         $this->assertTrue($exists);
 
-        $file_storage->clearOld(10);
+        $storage->clearOld(10);
 
-        $exists = $file_storage->sessionExists($identifier);
+        $exists = $storage->sessionExists($identifier);
 
         $this->assertFalse($exists);
     }
 
+    /**
+     * @covers \PHPSess\Storage\MockStorage::clearOld
+     */
     public function testDoNotClearNew()
     {
-        $file_storage = new MockStorage();
+        $storage = new MockStorage();
 
         $identifier = $this->getName();
 
-        $file_storage->save($identifier, 'test');
+        $storage->save($identifier, 'test');
 
-        $exists = $file_storage->sessionExists($identifier);
-
-        $this->assertTrue($exists);
-
-        $file_storage->clearOld(1000000); // one second
-
-        $exists = $file_storage->sessionExists($identifier);
+        $exists = $storage->sessionExists($identifier);
 
         $this->assertTrue($exists);
+
+        $storage->clearOld(1000000); // one second
+
+        $exists = $storage->sessionExists($identifier);
+
+        $this->assertTrue($exists);
+    }
+
+    /**
+     * @covers \PHPSess\Storage\MockStorage::lock
+     */
+    public function testCanLockOnce()
+    {
+        $storage = new MockStorage();
+
+        $identifier = $this->getName();
+
+        $locked = $storage->lock($identifier);
+
+        $this->assertTrue($locked);
+    }
+
+    /**
+     * @covers \PHPSess\Storage\MockStorage::lock
+     */
+    public function testCantLockTwice()
+    {
+        $storage = new MockStorage();
+
+        $identifier = $this->getName();
+
+        $storage->lock($identifier);
+
+        $locked = $storage->lock($identifier);
+
+        $this->assertFalse($locked);
+    }
+
+    /**
+     * @covers \PHPSess\Storage\MockStorage::lock
+     * @covers \PHPSess\Storage\MockStorage::unlock
+     */
+    public function testCanLockUnlockAndLockAgain()
+    {
+        $storage = new MockStorage();
+
+        $identifier = $this->getName();
+
+        $storage->lock($identifier);
+
+        $storage->unlock($identifier);
+
+        $locked = $storage->lock($identifier);
+
+        $this->assertTrue($locked);
+    }
+
+    /**
+     * @covers \PHPSess\Storage\MockStorage::unlock
+     */
+    public function testUnlockInexistentThrowNoErrors()
+    {
+        $storage = new MockStorage();
+
+        $identifier = $this->getName();
+
+        $exception = null;
+        try {
+            $storage->unlock($identifier);
+        } catch (Exception $exception) {
+        }
+
+        $this->assertNull($exception);
     }
 }

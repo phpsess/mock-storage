@@ -12,22 +12,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpsess/session-handler.git",
-                "reference": "e8d68a2df6790324ae34c0c99d5535d4cfab4ce6"
+                "reference": "6a2cfcd41de41612caa8f023a31413162d36bfa9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpsess/session-handler/zipball/e8d68a2df6790324ae34c0c99d5535d4cfab4ce6",
-                "reference": "e8d68a2df6790324ae34c0c99d5535d4cfab4ce6",
+                "url": "https://api.github.com/repos/phpsess/session-handler/zipball/6a2cfcd41de41612caa8f023a31413162d36bfa9",
+                "reference": "6a2cfcd41de41612caa8f023a31413162d36bfa9",
                 "shasum": ""
             },
             "require": {
-                "ext-json": "*",
-                "ext-openssl": "*",
                 "php": ">=7.1"
             },
             "require-dev": {
-                "mikey179/vfsstream": "^1.6",
                 "phpmd/phpmd": "^2.6",
+                "phpsess/mock-storage": "dev-master",
+                "phpsess/openssl-encryption": "dev-master",
                 "phpstan/phpstan": "^0.10.3",
                 "phpunit/phpunit": "^7",
                 "squizlabs/php_codesniffer": "^3.3"
@@ -49,7 +48,7 @@
                 }
             ],
             "description": "A security-first PHP session handler",
-            "time": "2018-10-13T19:47:26+00:00"
+            "time": "2018-10-14T12:09:30+00:00"
         }
     ],
     "packages-dev": [
