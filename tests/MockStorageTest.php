@@ -91,6 +91,17 @@ final class MockStorageTest extends TestCase
         $this->assertFalse($exists);
     }
 
+    public function testDestroyInexistent()
+    {
+        $file_storage = new MockStorage();
+
+        $identifier = $this->getName();
+
+        $this->expectException(SessionNotFoundException::class);
+
+        $file_storage->destroy($identifier);
+    }
+
     public function testClearOld()
     {
         $file_storage = new MockStorage();
