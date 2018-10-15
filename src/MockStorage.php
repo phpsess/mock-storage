@@ -29,7 +29,6 @@ class MockStorage implements StorageInterface
     /**
      * Saves the encrypted session data to the storage.
      *
-     * @throws \PHPSess\Exception\UnableToSaveException
      * @param  string $sessionIdentifier The string used to identify the session data.
      * @param  string $sessionData       The encrypted session data.
      * @return void
@@ -46,7 +45,6 @@ class MockStorage implements StorageInterface
      * Fetches the encrypted session data based on the session identifier.
      *
      * @throws \PHPSess\Exception\SessionNotFoundException
-     * @throws \PHPSess\Exception\UnableToFetchException
      * @param  string $sessionIdentifier The session identifier
      * @return string The encrypted session data
      */
@@ -121,7 +119,6 @@ class MockStorage implements StorageInterface
     /**
      * Removes the session older than the specified time from the storage.
      *
-     * @throws \PHPSess\Exception\UnableToDeleteException
      * @param  int $maxLife The maximum time (in microseconds) that a session file must be kept.
      * @return void
      */
