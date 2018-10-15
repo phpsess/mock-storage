@@ -68,7 +68,7 @@ class MockStorage implements StorageInterface
     public function lock(string $sessionIdentifier): bool
     {
         if (in_array($sessionIdentifier, self::$lockedIdentifiers)) {
-            return false;
+            return true;
         }
 
         self::$lockedIdentifiers[] = $sessionIdentifier;

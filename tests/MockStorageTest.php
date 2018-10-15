@@ -172,7 +172,7 @@ final class MockStorageTest extends TestCase
     /**
      * @covers \PHPSess\Storage\MockStorage::lock
      */
-    public function testCanLockOnce()
+    public function testCanLock()
     {
         $storage = new MockStorage();
 
@@ -186,7 +186,7 @@ final class MockStorageTest extends TestCase
     /**
      * @covers \PHPSess\Storage\MockStorage::lock
      */
-    public function testCantLockTwice()
+    public function testLockTwiceIsOk()
     {
         $storage = new MockStorage();
 
@@ -196,7 +196,7 @@ final class MockStorageTest extends TestCase
 
         $locked = $storage->lock($identifier);
 
-        $this->assertFalse($locked);
+        $this->assertTrue($locked);
     }
 
     /**
